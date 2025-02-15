@@ -6,8 +6,9 @@ const route = express.Router()
 route.get('/', async (req, res) => {
 
     try {
-        var result = await db.query('select * from users')
+        const result = await db.query('select * from users')
         res.json({ users: result.rows })
+
     } catch (err) {
         console.error(err.message)
         res.status(500).send('Server Error')
@@ -26,7 +27,7 @@ route.get('/:uid', async (req, res) => {
             return res.status(400).json({ message: "User not found" });
         }
 
-        var result = await db.query('select * from users where uid=$1', [uid])
+        const result = await db.query('select * from users where uid=$1', [uid])
         res.json({ user: result.rows })
     } catch (err) {
         console.error(err.message)
@@ -46,7 +47,7 @@ route.get('/tasks/:uid', async (req, res) => {
             return res.status(404).json({ message: "User currently don't have any tasks" });
         }
 
-        var result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid])
+        const result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid])
         res.json({ tasks: result.rows })
     } catch (err) {
         console.error(err.message)

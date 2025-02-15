@@ -8,7 +8,7 @@ const route = express.Router()
 route.get('/', async (req, res) => {
 
     try {
-        var result = await db.query('select * from tasks')
+        const result = await db.query('select * from tasks')
         res.json({ tasks: result.rows })
     } catch (err) {
         console.error(err.message)
@@ -28,7 +28,7 @@ route.get('/:uid', async (req, res) => {
             return res.status(404).json({ message: "User currently don't have any tasks" });
         }
 
-        var result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid])
+        const result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid])
         res.json({ tasks: result.rows })
 
     } catch (err) {
@@ -47,7 +47,7 @@ route.post('/', async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        var result = await db.query('INSERT INTO tasks(username, title, description) VALUES ($1,$2,$3) RETURNING *', [username, title, description])
+        const result = await db.query('INSERT INTO tasks(username, title, description) VALUES ($1,$2,$3) RETURNING *', [username, title, description])
         res.status(201).json({ message: "Save Success", task: result.rows[0] });
 
     } catch (err) {
@@ -101,7 +101,7 @@ route.put('/status/:tid', async (req, res) => {
             return res.status(400).json({ message: "Status required" });
         }
 
-        var result = await db.query('UPDATE tasks SET status=$1 WHERE tid=$2 RETURNING *', [status, tid])
+        const result = await db.query('UPDATE tasks SET status=$1 WHERE tid=$2 RETURNING *', [status, tid])
         res.status(200).json({ message: "Update success", task: result.rows[0] });
 
     } catch (err) {
@@ -121,7 +121,7 @@ route.delete('/:tid', async (req, res) => {
             return res.status(404).json({ message: "Task not found" });
         }
 
-        var result = await db.query('delete from tasks where tid=$1', [tid])
+        const result = await db.query('delete from tasks where tid=$1', [tid])
         res.send({ message: "Deleted" })
 
     } catch (err) {
