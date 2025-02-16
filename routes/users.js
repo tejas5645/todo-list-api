@@ -7,7 +7,7 @@ route.get('/', async (req, res) => {
 
     try {
         const result = await db.query('select * from users')
-        res.json({ users: result.rows })
+        res.status(200).json({ users: result.rows })
 
     } catch (err) {
         console.error(err.message)
@@ -21,14 +21,14 @@ route.get('/:uid', async (req, res) => {
     const { uid } = req.params
 
     try {
-
         const checkUser = await db.query('select * from users where uid=$1', [uid]);
-        if (checkUser.rows.length < 1) {
+        if (checkUser.rows.length === 0) {
             return res.status(400).json({ message: "User not found" });
         }
 
         const result = await db.query('select * from users where uid=$1', [uid])
-        res.json({ user: result.rows })
+        res.status(200).json({ user: result.rows })
+
     } catch (err) {
         console.error(err.message)
         res.status(500).send('Server Error')
@@ -41,18 +41,22 @@ route.get('/tasks/:uid', async (req, res) => {
     const { uid } = req.params
 
     try {
-
-        const checkUser = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid]);
+        const checkUser = await db.query('select * from users where uid=$1', [uid]);
         if (checkUser.rows.length === 0) {
-            return res.status(404).json({ message: "User currently don't have any tasks" });
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        const checkUserTask = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid]);
+        if (checkUserTask.rows.length === 0) {
+            return res.status(400).json({ message: "User currently don't have any tasks" });
         }
 
         const result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid])
-        res.json({ tasks: result.rows })
+        res.status(200).json({ tasks: result.rows })
+
     } catch (err) {
         console.error(err.message)
         res.status(500).send('Server Error')
-
     }
 });
 
@@ -79,7 +83,7 @@ route.post('/', async (req, res) => {
             [uname, email, age]
         );
 
-        res.status(201).json({ message: "Save Success", user: result.rows[0] });
+        res.status(201).json({ message: "Added Successfully", user: result.rows[0] });
 
     } catch (err) {
         console.error(err.message);
@@ -97,7 +101,7 @@ route.put('/:uid', async (req, res) => {
 
         const userCheck = await db.query('select * from users WHERE uid=$1', [uid]);
         if (userCheck.rows.length === 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(400).json({ message: "User not found" });
         }
 
         const { uname, email, age } = req.body;
@@ -111,7 +115,7 @@ route.put('/:uid', async (req, res) => {
             [uname, email, age, uid]
         );
 
-        res.status(200).json({ message: "Update success", user: result.rows[0] });
+        res.status(200).json({ message: "Updated Successfully", user: result.rows[0] });
 
     } catch (err) {
         console.error(err.message);
@@ -121,16 +125,17 @@ route.put('/:uid', async (req, res) => {
 
 
 route.delete('/:uid', async (req, res) => {
-    try {
-        const { uid } = req.params;
 
+    const { uid } = req.params;
+
+    try {
         const userCheck = await db.query('SELECT * FROM users WHERE uid = $1', [uid]);
         if (userCheck.rows.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
 
         await db.query('DELETE FROM users WHERE uid = $1', [uid]);
-        res.status(200).send({ message: "Deleted" });
+        res.status(200).send({ message: "Deleted Successfully" });
 
     } catch (err) {
         console.error(err.message);
