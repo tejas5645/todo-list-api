@@ -24,7 +24,7 @@ route.get('/:uid', async (req, res) => {
     try {
         const checkUser = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid]);
         if (checkUser.rows.length === 0) {
-            return res.status(400).json({ message: "User currently don't have any tasks" });
+            return res.status(404).json({ message: "User currently don't have any tasks" });
         }
 
         const result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid])
@@ -48,7 +48,7 @@ route.post('/', async (req, res) => {
 
         const checkUsersTasks = await db.query('select * from tasks where username=$1 and title=$2', [username, title])
         if (checkUsersTasks.rows.length !== 0) {
-            return res.status(400).json({ message: "This particular task is already exists for the user" })
+            return res.status(404).json({ message: "This particular task is already exists for the user" })
         }
 
         const result = await db.query('INSERT INTO tasks(username, title, description) VALUES ($1,$2,$3) RETURNING *', [username, title, description])
@@ -70,7 +70,7 @@ route.put('/:tid', async (req, res) => {
     try {
         const checkTask = await db.query('SELECT * FROM tasks WHERE tid = $1', [tid]);
         if (checkTask.rows.length === 0) {
-            return res.status(400).json({ message: "Task not found" });
+            return res.status(404).json({ message: "Task not found" });
         }
 
         const { username, title, description } = req.body
@@ -96,7 +96,7 @@ route.put('/status/:tid', async (req, res) => {
     try {
         const checkTask = await db.query('SELECT * FROM tasks WHERE tid = $1', [tid]);
         if (checkTask.rows.length === 0) {
-            return res.status(400).json({ message: "Task not found" });
+            return res.status(404).json({ message: "Task not found" });
         }
 
         const { status } = req.body;
@@ -122,7 +122,7 @@ route.delete('/:tid', async (req, res) => {
     try {
         const checkTask = await db.query('SELECT * FROM tasks WHERE tid = $1', [tid]);
         if (checkTask.rows.length === 0) {
-            return res.status(400).json({ message: "Task not found" });
+            return res.status(404).json({ message: "Task not found" });
         }
 
         await db.query('delete from tasks where tid=$1', [tid])

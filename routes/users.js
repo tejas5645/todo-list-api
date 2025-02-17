@@ -23,7 +23,7 @@ route.get('/:uid', async (req, res) => {
     try {
         const checkUser = await db.query('select * from users where uid=$1', [uid]);
         if (checkUser.rows.length === 0) {
-            return res.status(400).json({ message: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
 
         const result = await db.query('select * from users where uid=$1', [uid])
@@ -43,12 +43,12 @@ route.get('/tasks/:uid', async (req, res) => {
     try {
         const checkUser = await db.query('select * from users where uid=$1', [uid]);
         if (checkUser.rows.length === 0) {
-            return res.status(400).json({ message: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
 
         const checkUserTask = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid]);
         if (checkUserTask.rows.length === 0) {
-            return res.status(400).json({ message: "User currently don't have any tasks" });
+            return res.status(404).json({ message: "User currently don't have any tasks" });
         }
 
         const result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid])
@@ -70,12 +70,12 @@ route.post('/', async (req, res) => {
 
         const checkUsername = await db.query('select * from users where uname=$1', [uname]);
         if (checkUsername.rows.length > 0) {
-            return res.status(400).json({ message: "Username already exists" });
+            return res.status(404).json({ message: "Username already exists" });
         }
 
         const checkEmail = await db.query('select * from users where email=$1', [email]);
         if (checkEmail.rows.length > 0) {
-            return res.status(400).json({ message: "Email already in use" });
+            return res.status(404).json({ message: "Email already in use" });
         }
 
         const result = await db.query(
@@ -101,7 +101,7 @@ route.put('/:uid', async (req, res) => {
 
         const userCheck = await db.query('select * from users WHERE uid=$1', [uid]);
         if (userCheck.rows.length === 0) {
-            return res.status(400).json({ message: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
 
         const { uname, email, age } = req.body;
@@ -115,7 +115,7 @@ route.put('/:uid', async (req, res) => {
             [uname, email, age, uid]
         );
 
-        res.status(200).json({ message: "Updated Successfully", user: result.rows[0] });
+        res.status(200).json({ message: "Updated Successfully", user: result.rows });
 
     } catch (err) {
         console.error(err.message);
