@@ -21,12 +21,11 @@ route.get('/:uid', async (req, res) => {
     const { uid } = req.params
 
     try {
-        const checkUser = await db.query('select * from users where uid=$1', [uid]);
-        if (checkUser.rows.length === 0) {
+        const result = await db.query('select * from users where uid=$1', [uid]);
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const result = await db.query('select * from users where uid=$1', [uid])
         res.status(200).json({ user: result.rows })
 
     } catch (err) {
@@ -46,12 +45,11 @@ route.get('/tasks/:uid', async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const checkUserTask = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid]);
-        if (checkUserTask.rows.length === 0) {
+        const result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid]);
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: "User currently don't have any tasks" });
         }
 
-        const result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid])
         res.status(200).json({ tasks: result.rows })
 
     } catch (err) {
