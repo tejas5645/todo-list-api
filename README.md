@@ -27,12 +27,16 @@ DB_PORT=your_db_port
 
 
 ## Endpoints
+## Users Endpoints
+
 - **GET** `/users`: Get all users
 - **GET** `/users/:uid`: Get a particular user by UID
 - **GET** `/users/tasks/:uid`: Get tasks of a particular user by UID
 - **POST** `/users`: Add a new user
 - **PUT** `/users/:uid`: Update a user
 - **DELETE** `/users/:uid`: Delete a user by UID
+
+## Tasks Endpoints
 
 - **GET** `/tasks`: Get all tasks
 - **GET** `/tasks/:uid`: Get tasks for a specific user
@@ -43,28 +47,28 @@ DB_PORT=your_db_port
 
 ## Setup and Installation
 
-1. Clone the repository:
+## Clone the repository:
    ```bash
    git clone https://github.com/your-username/todo-list-api.git
    ```
 
 
-2. Navigate to the project directory:
+## Navigate to the project directory:
 
    ```bash
    cd todo-list-api
    ```
 
-3. Install dependencies:
+## Install dependencies:
 
    ```bash
    npm install
    ```
 
-4. Start the server:
+## Start the server:
 
    ```bash
    npm start
    ```
 
-5. The API will be running on http://localhost:3000.
+## The API will be running on http://localhost:3000.
