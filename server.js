@@ -34,6 +34,7 @@ app.get('/', (req, res) => {
                 { method: 'GET', endpoint: '/users/tasks/:uid', description: 'Get particular users tasks by uid' },
                 { method: 'POST', endpoint: '/users', description: 'Add an user' },
                 { method: 'PUT', endpoint: '/users/:uid', description: 'Update an user' },
+                { method: 'PUT', endpoint: '/users/password/:uid', description: 'Update an user\'s password' },
                 { method: 'DELETE', endpoint: '/users/:uid', description: 'Delete an user by uid' },
 
                 { method: 'GET', endpoint: '/tasks', description: 'Get all tasks' },
