@@ -1,30 +1,22 @@
 const express = require('express')
-const db = require('./db')
+const db = require('./db');
+const { verifyToken } = require('../middleware/auth');
 
 const route = express.Router()
 
+route.get('/', verifyToken, async (req, res) => {
 
-
-route.get('/', async (req, res) => {
-
-    try {
-        const result = await db.query('select * from tasks')
-        res.status(200).json({ tasks: result.rows })
-    } catch (err) {
-        console.error(err.message)
-        res.status(500).send('Server Error')
-
-    }
-});
-
-route.get('/:uid', async (req, res) => {
-
-    const { uid } = req.params
+    const uid = req.user.userId
 
     try {
+        const checkUser = await db.query('select * from users where uid=$1', [uid]);
+        if (checkUser.rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
         const result = await db.query('select tid,uname,title,description,status from tasks,users where uid=$1 and tasks.username=users.uid', [uid]);
         if (result.rows.length === 0) {
-            return res.status(404).json({ message: "User currently don't have any tasks" });
+            return res.status(404).json({ message: "You currently don't have any tasks" });
         }
 
         res.status(200).json({ tasks: result.rows })
@@ -32,16 +24,19 @@ route.get('/:uid', async (req, res) => {
     } catch (err) {
         console.error(err.message)
         res.status(500).send('Server Error')
-
     }
 });
 
-route.post('/', async (req, res) => {
+route.post('/', verifyToken, async (req, res) => {
+
+    const username = req.user.userId
+    console.log(req.userId)
+    console.log(username)
 
     try {
-        const { username, title, description } = req.body
+        const { title, description } = req.body
 
-        if (!username || !title) {
+        if (!title || !description) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -61,9 +56,10 @@ route.post('/', async (req, res) => {
 
 });
 
-route.put('/:tid', async (req, res) => {
+route.put('/:tid', verifyToken, async (req, res) => {
 
     const { tid } = req.params
+    const uid = req.user.userId
 
 
     try {
@@ -71,14 +67,17 @@ route.put('/:tid', async (req, res) => {
         if (checkTask.rows.length === 0) {
             return res.status(404).json({ message: "Task not found" });
         }
+        if (checkTask.rows[0].username !== uid) {
+            return res.status(403).json({ message: "You are not authorized to update this task" });
+        }
 
-        const { username, title, description } = req.body
+        const { title, description } = req.body
 
-        if (!username || !title) {
+        if (!description || !title) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const result = await db.query('UPDATE tasks SET username=$1,title=$2,description=$3 WHERE tid=$4 RETURNING *', [username, title, description, tid])
+        const result = await db.query('UPDATE tasks SET username=$1,title=$2,description=$3 WHERE tid=$4 RETURNING *', [uid, title, description, tid])
         res.status(200).json({ message: "Updated Successfully", task: result.rows });
 
     } catch (err) {
@@ -88,14 +87,18 @@ route.put('/:tid', async (req, res) => {
 
 });
 
-route.put('/status/:tid', async (req, res) => {
+route.put('/status/:tid', verifyToken, async (req, res) => {
 
     const { tid } = req.params;
+    const uid = req.user.userId
 
     try {
         const checkTask = await db.query('SELECT * FROM tasks WHERE tid = $1', [tid]);
         if (checkTask.rows.length === 0) {
             return res.status(404).json({ message: "Task not found" });
+        }
+        if (checkTask.rows[0].username !== uid) {
+            return res.status(403).json({ message: "You are not authorized to update this task" });
         }
 
         const { status } = req.body;
@@ -114,14 +117,18 @@ route.put('/status/:tid', async (req, res) => {
 
 });
 
-route.delete('/:tid', async (req, res) => {
+route.delete('/:tid', verifyToken, async (req, res) => {
 
     const { tid } = req.params
+    const uid = req.user.userId
 
     try {
         const checkTask = await db.query('SELECT * FROM tasks WHERE tid = $1', [tid]);
         if (checkTask.rows.length === 0) {
             return res.status(404).json({ message: "Task not found" });
+        }
+        if (checkTask.rows[0].username !== uid) {
+            return res.status(403).json({ message: "You are not authorized to delete this task" });
         }
 
         await db.query('delete from tasks where tid=$1', [tid])
