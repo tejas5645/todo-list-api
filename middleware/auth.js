@@ -15,11 +15,6 @@ const verifyToken = async (req, res, next) => {
         req.user = verified;
         next();
 
-        // const userCheck = await db.query('SELECT * FROM users WHERE uid=$1', [req.user.userId]);
-        // if (userCheck.rows.length === 0) {
-        //     return res.status(403).json({ message: "User does not exist or was deleted." });
-        // }
-
     } catch (error) {
         res.status(400).json({ message: "Invalid Token" });
     }
